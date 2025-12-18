@@ -1,313 +1,85 @@
-<!DOCTYPE html>
-<html lang="sk">
+
 <head>
   <meta charset="UTF-8" />
-  <title>Stat carousel – data portal</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stat carousel</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
     body {
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .stat-carousel {
-      width: 100%;
-      max-width: 720px;
-      padding: 20px 24px;
-      border-radius: 16px;
+      font-family: Arial, sans-serif;
       background: #ffffff;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-      position: relative;
-      overflow: hidden;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
     }
 
-    .stat-header {
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      opacity: 0.7;
-      margin-bottom: 4px;
+    .stat-box {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 8px;
+      display: inline-block;
+      min-width: 250px;
     }
 
-    .stat-title {
-      font-size: 22px;
-      font-weight: 600;
-      margin-bottom: 16px;
-    }
-
-    .stat-main {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px 24px;
-      align-items: baseline;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
+    .value {
       font-size: 36px;
-      font-weight: 700;
-      white-space: nowrap;
+      font-weight: bold;
+      margin-bottom: 6px;
     }
 
-    .stat-unit {
-      font-size: 16px;
-      opacity: 0.8;
-    }
-
-    .stat-description {
-      font-size: 15px;
-      line-height: 1.5;
-      opacity: 0.9;
-      margin-top: 6px;
-    }
-
-    .stat-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 16px;
-      font-size: 12px;
-      opacity: 0.8;
-    }
-
-    .stat-index {
-      font-variant-numeric: tabular-nums;
-    }
-
-    .stat-progress {
-      position: relative;
-      flex: 1;
-      height: 3px;
-      border-radius: 999px;
-      background: rgba(0,0,0,0.08);
-      margin: 0 16px;
-      overflow: hidden;
-    }
-
-    .stat-progress-bar {
-      position: absolute;
-      inset: 0;
-      transform-origin: left;
-      transform: scaleX(0);
-      background: #1d4ed8;
-      transition: transform 0.2s linear;
-    }
-
-    .stat-nav {
-      display: flex;
-      gap: 6px;
-    }
-
-    .nav-btn {
-      border: none;
-      background: rgba(0,0,0,0.04);
-      width: 28px;
-      height: 24px;
-      border-radius: 999px;
+    .desc {
       font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      opacity: 0.7;
     }
 
-    .nav-btn:hover {
-      background: rgba(0,0,0,0.1);
-    }
-
-    .fade-enter {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-
-    .fade-enter-active {
-      opacity: 1;
-      transform: translateY(0);
-      transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-
-    @media (max-width: 600px) {
-      .stat-value {
-        font-size: 30px;
-      }
-      .stat-carousel {
-        padding: 16px 18px;
-      }
+    button {
+      margin: 10px;
+      padding: 6px 10px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <div class="stat-carousel" id="statCarousel">
-    <div class="stat-header">Mesto v cislach</div>
-    <div class="stat-title" id="statTitle"></div>
 
-    <div class="stat-main">
-      <div class="stat-value" id="statValue"></div>
-      <div class="stat-unit" id="statUnit"></div>
-    </div>
+  <div class="stat-box">
+    <div id="value" class="value"></div>
+    <div id="desc" class="desc"></div>
+  </div>
 
-    <div class="stat-description" id="statDescription"></div>
-
-    <div class="stat-footer">
-      <div class="stat-index" id="statIndex"></div>
-      <div class="stat-progress">
-        <div class="stat-progress-bar" id="statProgressBar"></div>
-      </div>
-      <div class="stat-nav">
-        <button class="nav-btn" id="prevBtn" aria-label="Predchadzajuca statistika">‹</button>
-        <button class="nav-btn" id="nextBtn" aria-label="Dalsia statistika">›</button>
-      </div>
-    </div>
+  <div>
+    <button onclick="prev()">‹</button>
+    <button onclick="next()">›</button>
   </div>
 
   <script>
-    // Tu si dosadis svojich 30+ statistik
     const stats = [
-      {
-        title: "Pocet zverejnenych datasetov",
-        value: "132",
-        unit: "",
-        description: "Pocet aktivnych datasetov spristupnenych cez data portalu mesta."
-      },
-      {
-        title: "Cyklotrasy v meste",
-        value: "124",
-        unit: "km",
-        description: "Dlzka oficialnych cyklotras a cyklo-pruhov na uzemi mesta."
-      },
-      {
-        title: "Stromy v sprave mesta",
-        value: "58 230",
-        unit: "",
-        description: "Evidovane stromy v sprave hlavneho mesta a mestskych casti."
-      },
-      {
-        title: "Verejne parkovacie miesta",
-        value: "39 800",
-        unit: "",
-        description: "Odhadovany pocet verejnych parkovacich miest v regulovanych zonach."
-      },
-      {
-        title: "Mestske casti",
-        value: "17",
-        unit: "",
-        description: "Samostatne mestske casti, ktore tvoria hlavne mesto SR."
-      },
-      // ... sem pridaj dalsich cca 25 objektov
+      { value: "132 datasetov", desc: "Zverejnenych datasetov" },
+      { value: "124 km", desc: "Cyklotras v meste" },
+      { value: "58 230 stromov", desc: "Evidovane stromy" },
+      { value: "39 800 miest", desc: "Verejne parkovanie" },
+      { value: "17 casti", desc: "Mestske casti" }
     ];
 
-    const titleEl = document.getElementById("statTitle");
-    const valueEl = document.getElementById("statValue");
-    const unitEl = document.getElementById("statUnit");
-    const descEl = document.getElementById("statDescription");
-    const indexEl = document.getElementById("statIndex");
-    const progressBarEl = document.getElementById("statProgressBar");
-    const carouselEl = document.getElementById("statCarousel");
+    let current = 0;
 
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-
-    let currentIndex = 0;
-    const intervalMs = 4000;
-    let timerId = null;
-    let startTime = null;
-
-    function formatIndex(idx) {
-      return (idx + 1).toString().padStart(2, "0") + " / " + 
-             stats.length.toString().padStart(2, "0");
+    function show() {
+      document.getElementById("value").textContent = stats[current].value;
+      document.getElementById("desc").textContent = stats[current].desc;
     }
 
-    function renderStat(idx) {
-      const s = stats[idx];
-      if (!s) return;
-
-      // animacia vstupu
-      carouselEl.classList.remove("fade-enter-active");
-      carouselEl.classList.add("fade-enter");
-
-      // micro delay, aby sa spustil transition
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          carouselEl.classList.remove("fade-enter");
-          carouselEl.classList.add("fade-enter-active");
-        });
-      });
-
-      titleEl.textContent = s.title;
-      valueEl.textContent = s.value;
-      unitEl.textContent = s.unit || "";
-      descEl.textContent = s.description;
-      indexEl.textContent = formatIndex(idx);
-
-      // reset progresu
-      progressBarEl.style.transform = "scaleX(0)";
-      startTime = performance.now();
+    function next() {
+      current = (current + 1) % stats.length;
+      show();
     }
 
-    function startAutoRotate() {
-      stopAutoRotate();
-      startTime = performance.now();
-
-      timerId = setInterval(() => {
-        nextStat();
-      }, intervalMs);
+    function prev() {
+      current = (current - 1 + stats.length) % stats.length;
+      show();
     }
 
-    function stopAutoRotate() {
-      if (timerId) {
-        clearInterval(timerId);
-        timerId = null;
-      }
-    }
+    // automaticke prepínanie
+    setInterval(next, 3000);
 
-    function nextStat() {
-      currentIndex = (currentIndex + 1) % stats.length;
-      renderStat(currentIndex);
-    }
-
-    function prevStat() {
-      currentIndex = (currentIndex - 1 + stats.length) % stats.length;
-      renderStat(currentIndex);
-    }
-
-    // update progres bar jemne cez requestAnimationFrame
-    function tickProgress(now) {
-      if (startTime != null) {
-        const elapsed = now - startTime;
-        const ratio = Math.min(elapsed / intervalMs, 1);
-        progressBarEl.style.transform = "scaleX(" + ratio + ")";
-      }
-      requestAnimationFrame(tickProgress);
-    }
-
-    // event listenery
-    nextBtn.addEventListener("click", () => {
-      nextStat();
-      startAutoRotate();
-    });
-
-    prevBtn.addEventListener("click", () => {
-      prevStat();
-      startAutoRotate();
-    });
-
-    carouselEl.addEventListener("mouseenter", stopAutoRotate);
-    carouselEl.addEventListener("mouseleave", startAutoRotate);
-
-    // init
-    renderStat(currentIndex);
-    startAutoRotate();
-    requestAnimationFrame(tickProgress);
+    // start
+    show();
   </script>
 </body>
 </html>
