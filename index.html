@@ -2,48 +2,193 @@
 <html lang="sk">
 <head>
   <meta charset="UTF-8" />
-  <title>Test GitHub Pages</title>
+  <title>Statisticky carousel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background: #fafafa;
-      text-align: center;
-      padding: 40px;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
     }
 
-    .box {
-      display: inline-block;
-      padding: 20px;
-      background: white;
-      border-radius: 10px;
-      border: 1px solid #ddd;
+    .stat-card {
+      width: 100%;
+      max-width: 720px;
+      border-radius: 16px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      padding: 20px 24px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+    }
+
+    .stat-header {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.65;
+      margin-bottom: 4px;
+    }
+
+    .stat-title {
       font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
     }
 
-    #time {
-      font-weight: bold;
-      color: #2a6fdb;
+    .stat-main {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 34px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .stat-unit {
+      font-size: 16px;
+      opacity: 0.8;
+    }
+
+    .stat-description {
+      font-size: 15px;
+      line-height: 1.5;
+      opacity: 0.9;
+      margin-top: 6px;
+    }
+
+    .stat-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      font-size: 12px;
+      opacity: 0.85;
+      gap: 12px;
+    }
+
+    .stat-index {
+      font-variant-numeric: tabular-nums;
+      min-width: 60px;
+      text-align: left;
+    }
+
+    .stat-progress {
+      position: relative;
+      flex: 1;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .stat-progress-bar {
+      position: absolute;
+      inset: 0;
+      transform-origin: left;
+      transform: scaleX(0);
+      background: #2563eb;
+      transition: transform 0.15s linear;
+    }
+
+    .stat-nav {
+      display: flex;
+      gap: 6px;
+    }
+
+    .nav-btn {
+      border: none;
+      background: rgba(0,0,0,0.04);
+      width: 28px;
+      height: 24px;
+      border-radius: 999px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+
+    .nav-btn:hover {
+      background: rgba(0,0,0,0.12);
+    }
+
+    /* jednoduchy fade efekt pri zmene */
+    .fade-enter {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+
+    .fade-enter-active {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    @media (max-width: 600px) {
+      .stat-card {
+        padding: 16px 18px;
+      }
+      .stat-value {
+        font-size: 28px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>GitHub Pages & JS test</h1>
-  <div class="box">
-    Aktuálny čas: <span id="time"></span>
+  <div class="stat-card" id="statCard">
+    <div class="stat-header">Mesto v cislach</div>
+    <div class="stat-title" id="statTitle"></div>
+
+    <div class="stat-main">
+      <div class="stat-value" id="statValue"></div>
+      <div class="stat-unit" id="statUnit"></div>
+    </div>
+
+    <div class="stat-description" id="statDescription"></div>
+
+    <div class="stat-footer">
+      <div class="stat-index" id="statIndex"></div>
+      <div class="stat-progress">
+        <div class="stat-progress-bar" id="statProgressBar"></div>
+      </div>
+      <div class="stat-nav">
+        <button class="nav-btn" id="prevBtn" aria-label="Predchadzajuca statistika">‹</button>
+        <button class="nav-btn" id="nextBtn" aria-label="Dalsia statistika">›</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    function updateTime() {
-      const now = new Date();
-      document.getElementById("time").textContent = now.toLocaleTimeString();
-    }
-
-    // aktualizuje čas každú sekundu
-    setInterval(updateTime, 1000);
-
-    updateTime(); // prvé vykreslenie
-  </script>
-
-</body>
-</html>
+    // Tu si mozes dat kludne 30+ statistik
+    const stats = [
+      { title: "Zverejnene datasety", value: "132", unit: "", desc: "Pocet datasetov spristupnenych na data portali mesta." },
+      { title: "Cyklotrasy", value: "124", unit: "km", desc: "Priblizna dlzka cyklotrias a cyklo-pruhov v meste." },
+      { title: "Stromy v sprave mesta", value: "58 230", unit: "", desc: "Evidovane stromy v sprave hlavneho mesta a mestskych casti." },
+      { title: "Verejne parkovacie miesta", value: "39 800", unit: "", desc: "Odhadovany pocet verejnych parkovacich miest v regulovanych zonach." },
+      { title: "Mestske casti", value: "17", unit: "", desc: "Samostatne mestske casti, ktore tvoria hlavne mesto SR." },
+      { title: "Linky MHD", value: "X", unit: "", desc: "Sem si doplnis realnu hodnotu z datasetu MHD." },
+      { title: "Obyvatelia mesta", value: "Y", unit: "", desc: "Sem si doplnis aktualny pocet obyvatelov z open dat." },
+      { title: "Rozloha mesta", value: "367.5", unit: "km²", desc: "Celkova rozloha hlavneho mesta." },
+      { title: "Dennych cestujucich MHD", value: "Z", unit: "", desc: "Priemerny pocet cestujucich v MHD denne (doplnen z dat)." },
+      { title: "Pocty cyklistov", value: "~ 5 000", unit: "/deň", desc: "Priemerny sucet prejazdov cez scitacie miesta." },
+      // kludne si skopci dalsie a uprav podla realnych dat:
+      { title: "Datasety dopravy", value: "12", unit: "", desc: "Datasety tykajuce sa dopravy (MHD, cyklo, intenzity)." },
+      { title: "Datasety zivotneho prostredia", value: "8", unit: "", desc: "Datasety sledujuce kvalitu ovzdusia a zelen." },
+      { title: "Datasety transparentnosti", value: "15", unit: "", desc: "Objednavky, faktury,
