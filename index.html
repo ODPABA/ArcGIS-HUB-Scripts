@@ -2,98 +2,118 @@
 <html lang="sk">
 <head>
   <meta charset="UTF-8" />
-  <title>Stat Carousel</title>
+  <title>Bratislava v číslach</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
       background: transparent;
+    }
+
+    .stat-widget {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      display: inline-flex;
+      align-items: baseline;
+      gap: 12px;
+      font-size: 14px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      white-space: nowrap;
+    }
+
+    .stat-number {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1e40af;
+      min-width: 80px;
+      text-align: right;
+    }
+
+    .stat-text {
+      font-size: 14px;
+      color: #374151;
+    }
+
+    .stat-wrapper {
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-
-    .box {
-      text-align: center;
-      padding: 20px 30px;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      background: #fff;
-      min-width: 260px;
-    }
-
-    .number {
-      font-size: 52px;
-      font-weight: bold;
-      color: #1e40af;
-    }
-
-    .info {
-      font-size: 18px;
-      margin-top: 8px;
-      color: #444;
+      padding: 6px;
     }
 
     .fade {
       opacity: 0;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.3s ease;
     }
 
-    .show {
+    .fade.show {
       opacity: 1;
+    }
+
+    @media (max-width: 480px) {
+      .stat-widget {
+        border-radius: 12px;
+        white-space: normal;
+      }
+      .stat-number {
+        font-size: 20px;
+      }
     }
   </style>
 </head>
 <body>
-
-  <div class="box">
-    <div id="number" class="number"></div>
-    <div id="info" class="info"></div>
+  <div class="stat-wrapper">
+    <div class="stat-widget fade" id="statWidget">
+      <span class="stat-number" id="statNumber"></span>
+      <span class="stat-text" id="statText"></span>
+    </div>
   </div>
 
   <script>
     const stats = [
-      { num: "132", text: "zverejnených datasetov" },
-      { num: "124 km", text: "cyklotrás" },
-      { num: "58 230", text: "evidovaných stromov" },
-      { num: "39 800", text: "parkovacích miest" },
-      { num: "17", text: "mestských častí" },
-      { num: "367.5 km²", text: "rozloha mesta" },
-      { num: "~ 5 000", text: "cyklistov denne" }
+      { num: "132", text: "zverejnených datasetov mesta" },
+      { num: "124 km", text: "cyklotrás v Bratislave" },
+      { num: "58 230", text: "evidovaných stromov v správe mesta" },
+      { num: "39 800", text: "odhadovaných verejných parkovacích miest" },
+      { num: "17", text: "mestských častí hlavného mesta" },
+      { num: "367,5 km²", text: "rozloha Bratislavy" },
+      { num: "~ 5 000", text: "cyklistov denne cez sčítacie miesta" }
     ];
 
+    const widget = document.getElementById("statWidget");
+    const numberEl = document.getElementById("statNumber");
+    const textEl = document.getElementById("statText");
+
     let index = 0;
+    const intervalMs = 3500;
 
-    const numberEl = document.getElementById("number");
-    const infoEl = document.getElementById("info");
+    function showStat(i) {
+      const s = stats[i];
 
-    function render() {
-      numberEl.classList.remove("show");
-      infoEl.classList.remove("show");
+      widget.classList.remove("show");
 
       setTimeout(() => {
-        numberEl.textContent = stats[index].num;
-        infoEl.textContent = stats[index].text;
-
-        numberEl.classList.add("show");
-        infoEl.classList.add("show");
-      }, 200);
+        numberEl.textContent = s.num;
+        textEl.textContent = s.text;
+        widget.classList.add("show");
+      }, 150);
     }
 
-    function next() {
+    function nextStat() {
       index = (index + 1) % stats.length;
-      render();
+      showStat(index);
     }
 
-    // auto prepínanie každé 3 sekundy
-    setInterval(next, 3000);
-
-    // inicializácia
-    render();
+    // init
+    showStat(index);
+    setInterval(nextStat, intervalMs);
   </script>
-
 </body>
 </html>
