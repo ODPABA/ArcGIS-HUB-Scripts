@@ -1,119 +1,115 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-  <meta charset="UTF-8" />
-  <title>Bratislava v číslach</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background: transparent;
-    }
-
-    .stat-widget {
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      background: #ffffff;
-      display: inline-flex;
-      align-items: baseline;
-      gap: 12px;
-      font-size: 14px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
-      white-space: nowrap;
-    }
-
-    .stat-number {
-      font-size: 22px;
-      font-weight: 700;
-      color: #1e40af;
-      min-width: 80px;
-      text-align: right;
-    }
-
-    .stat-text {
-      font-size: 14px;
-      color: #374151;
-    }
-
-    .stat-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 6px;
-    }
-
-    .fade {
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-
-    .fade.show {
-      opacity: 1;
-    }
-
-    @media (max-width: 480px) {
-      .stat-widget {
-        border-radius: 12px;
-        white-space: normal;
-      }
-      .stat-number {
-        font-size: 20px;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotujúci Nadpis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px 0;
+            text-align: center;
+        }
+        .title {
+            font-size: 44px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+            overflow: hidden;
+            position: relative;
+            width: 100%; 
+            padding-left: 10px;
+        }
+        .subtitle-container {
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; 
+            overflow: hidden;
+            position: relative;
+            width: 100%; 
+            padding-left: 10px; 
+        }
+        .subtitle {
+            font-size: 28px;
+            font-weight: normal;
+            position: absolute;
+            text-align: left;
+            width: auto; 
+            transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+        }
+        .hidden {
+            transform: translateY(-40px); /* Nový text začne mimo viditeľnosti */
+            opacity: 0;
+        }
+        .visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .leaving {
+            transform: translateY(40px); /* Starý text odchádza dole */
+            opacity: 0;
+        }
+    </style>
 </head>
 <body>
-  <div class="stat-wrapper">
-    <div class="stat-widget fade" id="statWidget">
-      <span class="stat-number" id="statNumber"></span>
-      <span class="stat-text" id="statText"></span>
+
+    <div class="title">DÁTOVÝ PORTÁL</div>
+    <div class="subtitle-container">
+        <div id="subtitle1" class="subtitle visible">Hlavného mesta SR Bratislavy</div>
+        <div id="subtitle2" class="subtitle hidden"></div>
     </div>
-  </div>
+    
+    <script>
+        const subtitles = [
+            "Hlavného mesta SR Bratislavy",
+            "Otvorené údaje",
+            "Vizualizácie",
+            "Mapové aplikácie"
+        ];
 
-  <script>
-    const stats = [
-      { num: "132", text: "zverejnených datasetov mesta" },
-      { num: "124 km", text: "cyklotrás v Bratislave" },
-      { num: "58 230", text: "evidovaných stromov v správe mesta" },
-      { num: "39 800", text: "odhadovaných verejných parkovacích miest" },
-      { num: "17", text: "mestských častí hlavného mesta" },
-      { num: "367,5 km²", text: "rozloha Bratislavy" },
-      { num: "~ 5 000", text: "cyklistov denne cez sčítacie miesta" }
-    ];
+        let index = 0;
+        const subtitle1 = document.getElementById("subtitle1");
+        const subtitle2 = document.getElementById("subtitle2");
 
-    const widget = document.getElementById("statWidget");
-    const numberEl = document.getElementById("statNumber");
-    const textEl = document.getElementById("statText");
+        function rotateSubtitle() {
+            const nextIndex = (index + 1) % subtitles.length;
 
-    let index = 0;
-    const intervalMs = 3500;
+            if (subtitle1.classList.contains("visible")) {
+                // Nový text prichádza zhora
+                subtitle2.textContent = subtitles[nextIndex];
+                subtitle2.classList.remove("hidden");
+                subtitle2.classList.add("visible");
 
-    function showStat(i) {
-      const s = stats[i];
+                // Starý text odchádza dole
+                subtitle1.classList.remove("visible");
+                subtitle1.classList.add("leaving");
 
-      widget.classList.remove("show");
+                // Po animácii odstránime triedu leaving a skryjeme
+                setTimeout(() => {
+                    subtitle1.classList.remove("leaving");
+                    subtitle1.classList.add("hidden");
+                }, 800);
+            } else {
+                subtitle1.textContent = subtitles[nextIndex];
+                subtitle1.classList.remove("hidden");
+                subtitle1.classList.add("visible");
 
-      setTimeout(() => {
-        numberEl.textContent = s.num;
-        textEl.textContent = s.text;
-        widget.classList.add("show");
-      }, 150);
-    }
+                subtitle2.classList.remove("visible");
+                subtitle2.classList.add("leaving");
 
-    function nextStat() {
-      index = (index + 1) % stats.length;
-      showStat(index);
-    }
+                setTimeout(() => {
+                    subtitle2.classList.remove("leaving");
+                    subtitle2.classList.add("hidden");
+                }, 800);
+            }
 
-    // init
-    showStat(index);
-    setInterval(nextStat, intervalMs);
-  </script>
+            index = nextIndex;
+        }
+
+        setInterval(rotateSubtitle, 5000);
+    </script>
+
 </body>
 </html>
